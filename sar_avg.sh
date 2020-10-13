@@ -4,7 +4,7 @@ sar_date=$(sar -f $file | head -n 1 | awk '{print $4}')
 cpu_avg=$(sar -u -f $file | awk '/Average:/{printf 100 - $8}')
 
 #kbmemused - kbbuffers - kbcached / (kbmemfree + kbmemused)
-mem_avg=$(sar -r -f $file | awk '/Average:/{printf("%.2f%\n"),(($3-$5-$6)/($2+$3)) * 100 }')
+mem_avg=$(sar -r -f $file | awk '/Average:/{printf("%.2f\n"),(($3-$5-$6)/($2+$3)) * 100 }')
 
 #if first date of month, generate the data to the last month file
 if [ $(date +%d) = "01" ]
