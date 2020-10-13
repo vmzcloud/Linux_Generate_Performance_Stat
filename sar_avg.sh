@@ -9,7 +9,7 @@ mem_avg=$(sar -r -f $file | awk '/Average:/{printf("%.2f\n"),(($3-$5-$6)/($2+$3)
 #Create Daily Stat Folder if not exist
 if [ ! -d "/var/log/sa/daily_stat/$(date +%Y%m)" ]
 then
-        mkdir /var/log/sa/daily_stat/$(date +%Y%m)
+        mkdir -p /var/log/sa/daily_stat/$(date +%Y%m)
 fi
 
 #if first date of month, generate the data to the last month file
