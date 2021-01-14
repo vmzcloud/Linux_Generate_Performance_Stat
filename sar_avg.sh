@@ -12,19 +12,29 @@ then
         mkdir -p /var/log/sa/daily_stat/$(date +%Y%m)
 fi
 
-#if first date of month, generate the data to the last month file
-if [ $(date +%d) = "01" ]
+echo $sar_date , $cpu_avg >> /var/log/sa/cpu_avg_$(date +%Y%m -d yesterday).csv
+echo $sar_date , $mem_avg >> /var/log/sa/mem_avg_$(date +%Y%m -d yesterday).csv
+df -h > /home/admin/script/disk_$(date +%Y%m -d yesterday).csv
+
+sar -u -f $file > /var/log/sa/daily_stat/$(date +%Y%m -d yesterday)/$(date +%Y%m%d -d yesterday)_cpu.txt
+sar -r -f $file > /var/log/sa/daily_stat/$(date +%Y%m -d yesterday)/$(date +%Y%m%d -d yesterday)_mem.txt
+
+#Logging
+cpu_no_of_row=$(wc -l < /var/log/sa/cpu_avg_$(date +%Y%m -d yesterday).csv)
+mem_no_of_row=$(wc -l < /var/log/sa/mem_avg_$(date +%Y%m -d yesterday).csv)
+
+date_of_compare=$(date +%d -d yesterday)
+timestamp=$(date +'%Y-%m-%d %T')
+if [ $cpu_no_of_row == $date_of_compare ]
 then
-        echo $sar_date , $cpu_avg >> /var/log/sa/cpu_avg_$(date +%Y%m -d yesterday).csv
-        echo $sar_date , $mem_avg >> /var/log/sa/mem_avg_$(date +%Y%m -d yesterday).csv
-        df -h > /home/admin/script/disk_$(date +%Y%m -d yesterday).csv
-
-        sar -u -f $file > /var/log/sa/daily_stat/$(date +%Y%m -d yesterday)/$(date +%Y%m%d -d yesterday)_cpu.txt
-        sar -r -f $file > /var/log/sa/daily_stat/$(date +%Y%m -d yesterday)/$(date +%Y%m%d -d yesterday)_mem.txt
+        echo "$timestamp Normal. cpu_avg got $cpu_no_of_row Rows data." >> /var/log/sa/sar-avg.log
 else
-        echo $sar_date , $cpu_avg >> /var/log/sa/cpu_avg_$(date +%Y%m).csv
-        echo $sar_date , $mem_avg >> /var/log/sa/mem_avg_$(date +%Y%m).csv
+        echo "$timestamp Please Check!!! cpu_avg got $cpu_no_of_row Rows data. Some Data may be missing" >> /var/log/sa/sar-avg.log
+fi
 
-        sar -u -f $file > /var/log/sa/daily_stat/$(date +%Y%m)/$(date +%Y%m%d -d yesterday)_cpu.txt
-        sar -r -f $file > /var/log/sa/daily_stat/$(date +%Y%m)/$(date +%Y%m%d -d yesterday)_mem.txt
+if [ $mem_no_of_row == $date_of_compare ]
+then
+        echo "$timestamp Normal. mem_avg got $mem_no_of_row Rows data." >> /var/log/sa/sar-avg.log
+else
+        echo "$timestamp Please Check!!! mem_avg got $mem_no_of_row Rows data. Some Data may be missing" >> /var/log/sa/sar-avg.log
 fi
