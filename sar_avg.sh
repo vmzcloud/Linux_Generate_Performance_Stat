@@ -1,7 +1,7 @@
 file="/var/log/sa/sa$(date +%d -d yesterday)"
 sar_date=$(sar -f $file | head -n 1 | awk '{print $4}')
 
-cpu_avg=$(sar -u -f $file | awk '/Average:/{printf 100 - $8}')
+cpu_avg=$(sar -u -f $file | awk '/Average:/{ total += $8; count++ } END {printf 100 - (total/count)}')
 
 #kbmemused - kbbuffers - kbcached / (kbmemfree + kbmemused)
 mem_avg=$(sar -r -f $file | awk '/Average:/{printf("%.2f\n"),(($3-$5-$6)/($2+$3)) * 100 }')
